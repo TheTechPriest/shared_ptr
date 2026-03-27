@@ -47,16 +47,72 @@ public:
     control->print_value();
   }
 
-  // Destructor
-  ~sharedPtr() { control->deleter(); }
+  // Copy Constructor
+  sharedPtr(sharedPtr<T> &sptr) {
+    storedPtr = sptr.get();
+    control = sptr.getControl();
+    control->shared_ptrs++;
+  }
 
   T *get() { return storedPtr; }
+  ControlBlock<T> *getControl() { return control; }
+  int use_count() { return control->shared_ptrs; }
 
-  int use_count() { return control.shared_ptrs; }
+  // Operator overloading
+
+  T &operator*() { return *storedPtr; }
+  T *operator->() { return storedPtr; }
+
+  void operator=(sharedPtr sptr) {
+    if (storedPtr != sptr.get()) {
+      std::cout << "Pointing to different location" << std::endl;
+      if (storedPtr && *control) {
+        control->deleter();
+      }
+
+      storedPtr = sptr.get();
+      if (storedPtr) {
+        control = sptr.getControl();
+
+        control->shared_ptrs++;
+      }
+    }
+  }
+
+  // Destructor
+  ~sharedPtr() { control->deleter(); }
 };
 
-int main() {
+void printSharedPointerTest() {
+
   sharedPtr<int> ptr1(new int(151));
+
+  std::cout << "Use count for ptr1: " << ptr1.use_count() << std::endl;
+
+  sharedPtr<int> ptr2 = ptr1;
+
+  std::cout << "Use count for ptr1: " << ptr1.use_count() << std::endl;
+  std::cout << "Use count for ptr2: " << ptr2.use_count() << std::endl;
+
+  {
+    sharedPtr<int> ptr3(ptr2);
+
+    std::cout << "Use count for ptr1: " << ptr1.use_count() << std::endl;
+    std::cout << "Use count for ptr2: " << ptr2.use_count() << std::endl;
+    std::cout << "Use count for ptr3: " << ptr3.use_count() << std::endl;
+  }
+
+  // ptr3 goes out of scope and is deallocated
+
+  std::cout << "Use count for ptr1: " << ptr1.use_count() << std::endl;
+  std::cout << "Use count for ptr2: " << ptr2.use_count() << std::endl;
+}
+
+int main() {
+
+  // static_assert(true, "test123");
+
+  printSharedPointerTest();
 
   return 0;
 }
