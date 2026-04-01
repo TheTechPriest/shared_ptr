@@ -8,6 +8,7 @@
 #include <mutex>
 #include <thread>
 
+#include "benchmark.cpp"
 
 template <typename T> class ControlBlock {
 public:

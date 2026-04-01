@@ -56,35 +56,45 @@ void printConcurrencyTest() {
   std::cout << "===CONCURRENCY TEST===\n";
   std::cout << "Custom implementation: \n";
 
-  sharedPtr<int> ptr(new int(100));
+  {
+    Timer timer;
 
-  std::cout << "Use count in main thread: " << ptr.use_count() << std::endl;
+    sharedPtr<int> ptr(new int(100));
 
-  // Here I'm forced to give it the explicit pointer type so it understands
-  // which template to use at compile time
-  std::thread t1{[&ptr]() { thr(ptr); }}, t2{[&ptr]() { thr(ptr); }},
-      t3{[&ptr]() { thr(ptr); }};
+    std::cout << "Use count in main thread: " << ptr.use_count() << std::endl;
 
-  // Can use reset() to release ownership from main
-  // ptr.reset();
+    // Here I'm forced to give it the explicit pointer type so it understands
+    // which template to use at compile time
+    std::thread t1{[&ptr]() { thr(ptr); }}, t2{[&ptr]() { thr(ptr); }},
+        t3{[&ptr]() { thr(ptr); }};
 
-  t1.join();
-  t2.join();
-  t3.join();
+    // Can use reset() to release ownership from main
+    // ptr.reset();
+
+    t1.join();
+    t2.join();
+    t3.join();
+  }
 
   // Comparing with standard implementation
   std::cout << "Official implementation: \n";
 
-  std::shared_ptr<int> offPtr(new int(100));
+  {
+    Timer timer;
 
-  std::cout << "Use count in main thread: " << offPtr.use_count() << std::endl;
+    std::shared_ptr<int> offPtr(new int(100));
 
-  std::thread offt1{[&offPtr]() { thr(offPtr); }},
-      offt2{[&offPtr]() { thr(offPtr); }}, offt3{[&offPtr]() { thr(offPtr); }};
+    std::cout << "Use count in main thread: " << offPtr.use_count()
+              << std::endl;
 
-  offt1.join();
-  offt2.join();
-  offt3.join();
+    std::thread offt1{[&offPtr]() { thr(offPtr); }},
+        offt2{[&offPtr]() { thr(offPtr); }},
+        offt3{[&offPtr]() { thr(offPtr); }};
+
+    offt1.join();
+    offt2.join();
+    offt3.join();
+  }
 
   // std::cout << "Use count in main thread: " << ptr.use_count() << std::endl;
 }
