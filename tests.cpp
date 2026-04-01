@@ -1,7 +1,7 @@
 #ifndef TESTS_CPP
 #define TESTS_CPP
 
-#include "sharedPtr.h"
+#include "weakPtr.h"
 
 using namespace std::chrono_literals;
 
@@ -59,7 +59,7 @@ void printConcurrencyTest() {
   {
     Timer timer;
 
-    sharedPtr<int> ptr(new int(100));
+    sharedPtr<int> ptr{new int(100)};
 
     std::cout << "Use count in main thread: " << ptr.use_count() << std::endl;
 

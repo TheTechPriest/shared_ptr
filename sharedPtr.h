@@ -49,10 +49,16 @@ public:
   // no element is provided
   sharedPtr(T *ptr = nullptr)
       : storedPtr{ptr}, control{new ControlBlock<T>(ptr)} {
-    std::cout << "Initialized new shared pointer with value: " << *storedPtr
-              << std::endl;
 
-    control->print_value();
+    if (storedPtr) {
+      std::cout << "Initialized new shared pointer with value: " << *storedPtr
+                << std::endl;
+
+      control->print_value();
+      return;
+    }
+
+    std::cout << "Initialized new empty shared pointer\n";
   }
 
   // Copy Constructor
@@ -84,7 +90,7 @@ public:
   void operator=(sharedPtr sptr) {
     if (storedPtr != sptr.get()) {
       std::cout << "Pointing to different location" << std::endl;
-      if (storedPtr && *control) {
+      if (storedPtr && control) {
         control->deleter();
       }
 
