@@ -7,6 +7,8 @@ using namespace std::chrono_literals;
 
 void printWeakPointerTest() {
 
+  std::cout << "Testing weak pointer implementation\n";
+
   weakPtr<int> gw;
 
   auto observe = [&gw]() {
