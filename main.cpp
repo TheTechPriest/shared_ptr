@@ -8,7 +8,8 @@
 int main() {
 
   // printSharedPointerTest();
-  printConcurrencyTest();
+  // printConcurrencyTest();
+  printWeakPointerTest();
 
   return 0;
 }

@@ -5,6 +5,33 @@
 
 using namespace std::chrono_literals;
 
+void printWeakPointerTest() {
+
+  weakPtr<int> gw;
+
+  auto observe = [&gw]() {
+    std::cout << "gw.use_count() == " << gw.use_count() << "; ";
+    // we have to make a copy of shared pointer before usage:
+    if (!gw.expired()) {
+      std::cout << "*shared == " << *gw.get() << '\n';
+    } else
+      std::cout << "gw is expired\n";
+  };
+
+  auto execute_test = [&gw, observe]() {
+    {
+      sharedPtr<int> sp{new int(100)};
+      gw = &sp;
+
+      observe();
+    }
+
+    observe();
+  };
+
+  execute_test();
+}
+
 void printSharedPointerTest() {
 
   std::cout << "===REFERENCE COUNT TEST===\n";
