@@ -6,14 +6,17 @@
 template <typename T> class weakPtr {
 private:
   ControlBlock<T> *control;
-  sharedPtr<T> *shared;
+  T *storedPtr;
 
 public:
-  weakPtr(sharedPtr<T> *newShared = nullptr) : shared{newShared} {
-    if (shared) {
-      control = shared->getControl();
+  weakPtr(sharedPtr<T> *newShared = nullptr) {
+    if (newShared) {
+      storedPtr = newShared->get();
+    }
+    if (storedPtr) {
+      control = newShared->getControl();
 
-      std::cout << "Initialized new weak pointer with value: " << shared->get()
+      std::cout << "Initialized new weak pointer with value: " << storedPtr
                 << std::endl;
 
       control->print_value();
@@ -27,30 +30,30 @@ public:
   }
 
   weakPtr(weakPtr<T> &wptr) {
-    shared = wptr.get();
+    storedPtr = wptr.get();
     control = wptr.getControl();
     control->weak_ptrs++;
   }
 
-  T *get() { return shared->get(); }
+  T *get() { return storedPtr; }
   ControlBlock<T> *getControl() { return control; }
 
   int use_count() { return control->shared_ptrs; }
 
   bool expired() { return (control->shared_ptrs == 0); }
 
-  weakPtr<T> &operator*() { return *shared; }
-  weakPtr<T> *operator->() { return shared; }
+  weakPtr<T> &operator*() { return *storedPtr; }
+  weakPtr<T> *operator->() { return storedPtr; }
 
   void operator=(weakPtr wptr) {
-    if (shared != wptr.get()) {
+    if (storedPtr != wptr.get()) {
       std::cout << "Pointing to different location" << std::endl;
-      if (shared && control) {
+      if (storedPtr && control) {
         control->weak_ptrs--;
       }
 
-      shared = wptr.get();
-      if (shared) {
+      storedPtr = wptr.get();
+      if (storedPtr) {
         control = wptr.getControl();
 
         control->weak_ptrs++;
@@ -58,16 +61,18 @@ public:
     }
   }
 
-  void operator=(sharedPtr<T> *sptr) {
-    if (shared != sptr) {
+  void operator=(sharedPtr<T> &sptr) {
+    if (storedPtr != sptr.get()) {
       std::cout << "Pointing to different location" << std::endl;
-      if (shared && control) {
+      if (storedPtr && control) {
         control->weak_ptrs--;
       }
 
-      shared = sptr;
-      if (shared) {
-        control = sptr->getControl();
+      storedPtr = sptr.get();
+
+      // std::cout << "Shared value = " << shared << std::endl;
+      if (storedPtr) {
+        control = sptr.getControl();
 
         control->weak_ptrs++;
       }

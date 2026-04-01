@@ -21,7 +21,7 @@ void printWeakPointerTest() {
   auto execute_test = [&gw, observe]() {
     {
       sharedPtr<int> sp{new int(100)};
-      gw = &sp;
+      gw = sp;
 
       observe();
     }
